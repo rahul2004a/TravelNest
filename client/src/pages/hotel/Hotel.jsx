@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './hotel.css'
 import Navbar from '../../components/navbar/Navbar';
 import Header from '../../components/header/Header';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faCircleArrowLeft, faCircleArrowRight, faCircleXmark, faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import Footer from '../../components/footer/Footer';
 import MediaList from "../../components/mailList/MailList"
 const Hotel = () => {
-
+    const [slideNumber, setSlideNumber] = useState(0);
+    const [open, setOpen] = useState(false);
     const photos = [
         {
             src: "https://cf.bstatic.com/xdata/images/hotel/max1280x900/261707778.jpg?k=56ba0babbcbbfeb3d3e911728831dcbc390ed2cb16c51d88159f82bf751d04c6&o=&hp=1",
@@ -28,11 +29,49 @@ const Hotel = () => {
             src: "https://cf.bstatic.com/xdata/images/hotel/max1280x900/261707389.jpg?k=52156673f9eb6d5d99d3eed9386491a0465ce6f3b995f005ac71abc192dd5827&o=&hp=1",
         },
     ];
+    const handleOpen = (i) => {
+        setSlideNumber(i);
+        setOpen(true);
+    };
+    const handleMove = (direction) => {
+        let newSlideNumber;
+
+        if (direction === "l") {
+            newSlideNumber = slideNumber === 0 ? 5 : slideNumber - 1;
+        } else {
+            newSlideNumber = slideNumber === 5 ? 0 : slideNumber + 1;
+        }
+
+        setSlideNumber(newSlideNumber)
+    };
     return (
         <div>
             <Navbar />
             <Header type="list" />
             <div className="hotelContainer">
+                {open && (
+                    <div className="slider">
+                        <FontAwesomeIcon
+                            icon={faCircleXmark}
+                            className="close"
+                            onClick={() => setOpen(false)}
+                        />
+                        <FontAwesomeIcon
+                            icon={faCircleArrowLeft}
+                            className="arrow"
+                            onClick={() => handleMove("l")}
+                        />
+                        <div className="sliderWrapper">
+                            <img src={photos[slideNumber].src} alt="" className="sliderImg" />
+                        </div>
+                        <FontAwesomeIcon
+                            icon={faCircleArrowRight}
+                            className="arrow"
+                            onClick={() => handleMove("r")}
+                        />
+                    </div>
+                )}
+
                 <div className="hotelWrapper">
                     <button className="bookNow">
                         Reserve or Book Now!
@@ -53,7 +92,7 @@ const Hotel = () => {
                         {photos.map((photo, i) => (
                             <div className="hotelImgWrapper" key={i}>
                                 <img
-                                    onClick={() => { }}
+                                    onClick={() => handleOpen(i)}
                                     src={photo.src}
                                     alt=""
                                     className="hotelImg"
