@@ -6,17 +6,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleArrowLeft, faCircleArrowRight, faCircleXmark, faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import Footer from '../../components/footer/Footer';
 import MediaList from "../../components/mailList/MailList"
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import { SearchContext } from '../../context/SearchContext';
+import { AuthContext } from '../../context/AuthContext';
+import Reserve from '../../components/reserve/Reserve';
 const Hotel = () => {
     const [slideNumber, setSlideNumber] = useState(0);
     const [open, setOpen] = useState(false);
     const location = useLocation();
     const id = location.pathname.split("/")[2];
     const { data, loading, error } = useFetch(`/hotels/find/${id}`);
-
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
     const { dates, options } = useContext(SearchContext);
+    const [openModal, setOpenModal] = useState(false);
 
     const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
     function dayDifference(date1, date2) {
@@ -24,6 +28,7 @@ const Hotel = () => {
         const diffDays = Math.ceil(timeDiff / MILLISECONDS_PER_DAY);
         return diffDays;
     }
+    // console.log(dates);
     const days = dayDifference(dates[0].endDate, dates[0].startDate);
     const handleOpen = (i) => {
         setSlideNumber(i);
@@ -39,6 +44,13 @@ const Hotel = () => {
         }
 
         setSlideNumber(newSlideNumber)
+    };
+    const handleClick = () => {
+        if (user) {
+            setOpenModal(true);
+        } else {
+            navigate("/login");
+        }
     };
     return (
         <div>
@@ -114,7 +126,7 @@ const Hotel = () => {
                                 <h2>
                                     <b>${days * data.cheapestPrice * options.room}</b> ({days} nights)
                                 </h2>
-                                <button>Reserve or Book Now!</button>
+                                <button onClick={handleClick}>Reserve or Book Now!</button>
                             </div>
                         </div>
                     </div>
@@ -123,6 +135,7 @@ const Hotel = () => {
 
                 </div>
             }
+            {openModal && <Reserve setOpen={setOpenModal} hotelId={id} />}
         </div>
     )
 }
